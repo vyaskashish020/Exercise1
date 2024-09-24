@@ -1,0 +1,313 @@
+import java.util.*;
+
+// ------------------ OBSERVER PATTERN ------------------
+
+// Observer interface
+interface WeatherObserver {
+    void update(float temperature);
+}
+
+// Concrete Observer: Display devices
+class PhoneDisplay implements WeatherObserver {
+    public void update(float temperature) {
+        System.out.println("Phone display shows temperature: " + temperature + "°C");
+    }
+}
+
+class TVDisplay implements WeatherObserver {
+    public void update(float temperature) {
+        System.out.println("TV display shows temperature: " + temperature + "°C");
+    }
+}
+
+// Subject: Weather Station
+class WeatherStation {
+    private List<WeatherObserver> observers = new ArrayList<>();
+    private float temperature;
+
+    public void addObserver(WeatherObserver observer) {
+        observers.add(observer);
+    }
+
+    public void removeObserver(WeatherObserver observer) {
+        observers.remove(observer);
+    }
+
+    public void setTemperature(float temperature) {
+        this.temperature = temperature;
+        notifyObservers();
+    }
+
+    private void notifyObservers() {
+        for (WeatherObserver observer : observers) {
+            observer.update(temperature);
+        }
+    }
+}
+
+// ------------------ STRATEGY PATTERN ------------------
+
+// Strategy interface
+interface SortingStrategy {
+    void sort(int[] array);
+}
+
+// Concrete strategies
+class BubbleSort implements SortingStrategy {
+    public void sort(int[] array) {
+        System.out.println("Sorting array using Bubble Sort");
+        for (int i = 0; i < array.length - 1; i++) {
+            for (int j = 0; j < array.length - i - 1; j++) {
+                if (array[j] > array[j + 1]) {
+                    int temp = array[j];
+                    array[j] = array[j + 1];
+                    array[j + 1] = temp;
+                }
+            }
+        }
+    }
+}
+
+class QuickSort implements SortingStrategy {
+    public void sort(int[] array) {
+        System.out.println("Sorting array using Quick Sort");
+        quickSort(array, 0, array.length - 1);
+    }
+
+    private void quickSort(int[] array, int low, int high) {
+        if (low < high) {
+            int pi = partition(array, low, high);
+            quickSort(array, low, pi - 1);
+            quickSort(array, pi + 1, high);
+        }
+    }
+
+    private int partition(int[] array, int low, int high) {
+        int pivot = array[high];
+        int i = (low - 1);
+        for (int j = low; j < high; j++) {
+            if (array[j] <= pivot) {
+                i++;
+                int temp = array[i];
+                array[i] = array[j];
+                array[j] = temp;
+            }
+        }
+        int temp = array[i + 1];
+        array[i + 1] = array[high];
+        array[high] = temp;
+        return i + 1;
+    }
+}
+
+// Context class
+class SortContext {
+    private SortingStrategy strategy;
+
+    public void setStrategy(SortingStrategy strategy) {
+        this.strategy = strategy;
+    }
+
+    public void executeStrategy(int[] array) {
+        strategy.sort(array);
+    }
+}
+
+// ------------------ SINGLETON PATTERN ------------------
+
+// Singleton class
+class DatabaseConnection {
+    private static DatabaseConnection instance;
+
+    private DatabaseConnection() {
+        System.out.println("Establishing Database Connection...");
+    }
+
+    public static synchronized DatabaseConnection getInstance() {
+        if (instance == null) {
+            instance = new DatabaseConnection();
+        }
+        return instance;
+    }
+
+    public void executeQuery(String query) {
+        System.out.println("Executing Query: " + query);
+    }
+}
+
+// ------------------ FACTORY PATTERN ------------------
+
+// Product interface
+interface Shape {
+    void draw();
+}
+
+// Concrete products
+class Circle implements Shape {
+    public void draw() {
+        System.out.println("Drawing a Circle");
+    }
+}
+
+class Square implements Shape {
+    public void draw() {
+        System.out.println("Drawing a Square");
+    }
+}
+
+// Factory class
+class ShapeFactory {
+    public Shape getShape(String shapeType) {
+        if (shapeType == null) {
+            return null;
+        }
+        if (shapeType.equalsIgnoreCase("CIRCLE")) {
+            return new Circle();
+        } else if (shapeType.equalsIgnoreCase("SQUARE")) {
+            return new Square();
+        }
+        return null;
+    }
+}
+
+// ------------------ ADAPTER PATTERN ------------------
+
+// Existing interface
+interface ModernPaymentSystem {
+    void processPayment(int amount);
+}
+
+// Legacy class (adaptee)
+class OldPaymentSystem {
+    public void makePayment(double amount) {
+        System.out.println("Processing payment of: $" + amount + " using the old system.");
+    }
+}
+
+// Adapter class
+class PaymentAdapter implements ModernPaymentSystem {
+    private OldPaymentSystem oldSystem;
+
+    public PaymentAdapter(OldPaymentSystem oldSystem) {
+        this.oldSystem = oldSystem;
+    }
+
+    public void processPayment(int amount) {
+        oldSystem.makePayment(amount);
+    }
+}
+
+// ------------------ DECORATOR PATTERN ------------------
+
+// Component interface
+interface Coffee {
+    String getDescription();
+    double cost();
+}
+
+// Concrete component
+class BasicCoffee implements Coffee {
+    public String getDescription() {
+        return "Basic Coffee";
+    }
+
+    public double cost() {
+        return 2.0;
+    }
+}
+
+// Decorator class
+abstract class CoffeeDecorator implements Coffee {
+    protected Coffee decoratedCoffee;
+
+    public CoffeeDecorator(Coffee coffee) {
+        this.decoratedCoffee = coffee;
+    }
+
+    public String getDescription() {
+        return decoratedCoffee.getDescription();
+    }
+
+    public double cost() {
+        return decoratedCoffee.cost();
+    }
+}
+
+// Concrete decorators
+class MilkDecorator extends CoffeeDecorator {
+    public MilkDecorator(Coffee coffee) {
+        super(coffee);
+    }
+
+    public String getDescription() {
+        return decoratedCoffee.getDescription() + ", Milk";
+    }
+
+    public double cost() {
+        return decoratedCoffee.cost() + 0.5;
+    }
+}
+
+class SugarDecorator extends CoffeeDecorator {
+    public SugarDecorator(Coffee coffee) {
+        super(coffee);
+    }
+
+    public String getDescription() {
+        return decoratedCoffee.getDescription() + ", Sugar";
+    }
+
+    public double cost() {
+        return decoratedCoffee.cost() + 0.2;
+    }
+}
+
+// ------------------ MAIN CLASS ------------------
+
+public class Exercise1 {
+    public static void main(String[] args) {
+        // 1. Observer Pattern Demo
+        System.out.println("---- Observer Pattern Demo ----");
+        WeatherStation station = new WeatherStation();
+        WeatherObserver phoneDisplay = new PhoneDisplay();
+        WeatherObserver tvDisplay = new TVDisplay();
+        station.addObserver(phoneDisplay);
+        station.addObserver(tvDisplay);
+        station.setTemperature(25.5f);
+
+        // 2. Strategy Pattern Demo
+        System.out.println("\n---- Strategy Pattern Demo ----");
+        int[] array = {10, 5, 2, 8, 7};
+        SortContext context = new SortContext();
+        context.setStrategy(new BubbleSort());
+        context.executeStrategy(array);
+        context.setStrategy(new QuickSort());
+        context.executeStrategy(array);
+
+        // 3. Singleton Pattern Demo
+        System.out.println("\n---- Singleton Pattern Demo ----");
+        DatabaseConnection db1 = DatabaseConnection.getInstance();
+        db1.executeQuery("SELECT * FROM users");
+
+        // 4. Factory Pattern Demo
+        System.out.println("\n---- Factory Pattern Demo ----");
+        ShapeFactory shapeFactory = new ShapeFactory();
+        Shape shape1 = shapeFactory.getShape("CIRCLE");
+        shape1.draw();
+        Shape shape2 = shapeFactory.getShape("SQUARE");
+        shape2.draw();
+
+        // 5. Adapter Pattern Demo
+        System.out.println("\n---- Adapter Pattern Demo ----");
+        OldPaymentSystem oldSystem = new OldPaymentSystem();
+        ModernPaymentSystem paymentSystem = new PaymentAdapter(oldSystem);
+        paymentSystem.processPayment(100);
+
+        // 6. Decorator Pattern Demo
+        System.out.println("\n---- Decorator Pattern Demo ----");
+        Coffee coffee = new BasicCoffee();
+        coffee = new MilkDecorator(coffee);
+        coffee = new SugarDecorator(coffee);
+        System.out.println(coffee.getDescription() + " costs $" + coffee.cost());
+    }
+}
